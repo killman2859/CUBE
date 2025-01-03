@@ -2,6 +2,7 @@ import os
 import sys
 
 import pygame
+from level import Level
 
 # Изображение не получится загрузить
 # без предварительной инициализации pygame
@@ -10,10 +11,7 @@ size = width, height = 500, 500
 screen = pygame.display.set_mode(size)
 FPS = 50
 clock = pygame.time.Clock()
-
-
-def start_game():
-    print("Starting game")
+current_level = None
 
 
 def load_image(name, colorkey=None):
@@ -62,7 +60,8 @@ def start_screen():
                 terminate()
             elif event.type == pygame.KEYDOWN or \
                     event.type == pygame.MOUSEBUTTONDOWN:
-                start_game()
+                current_level = Level(0)
+                current_level.start_level()
                 return  # начинаем игру
         pygame.display.flip()
         clock.tick(FPS)
