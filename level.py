@@ -1,4 +1,6 @@
 import random
+import sys
+import os
 
 from player import Player
 from blocks import Platform
@@ -8,6 +10,16 @@ import pygame
 
 FPS = 50
 clock = pygame.time.Clock()
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join('Images', name)
+    # если файл не существует, то выходим
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    return image
 
 
 def read_level_data(level_number):
@@ -30,15 +42,8 @@ class Level:
 
     def draw_level(self, screen):
         screen.fill((0, 0, 0))
-        font = pygame.font.Font(None, 50)
-        text = font.render("Hello, Pygame!", True, (100, 255, 100))
-        text_x = self.width // 2 - text.get_width() // 2
-        text_y = self.height // 2 - text.get_height() // 2
-        text_w = text.get_width()
-        text_h = text.get_height()
-        screen.blit(text, (text_x, text_y))
-        pygame.draw.rect(screen, (0, 255, 0), (text_x - 10, text_y - 10,
-                                               text_w + 20, text_h + 20), 1)
+        fon = pygame.transform.scale(load_image('main_background.png'), (800, 600))
+        screen.blit(fon, (0, 0))
 
     def start_level(self):
         pygame.init()

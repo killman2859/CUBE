@@ -13,11 +13,12 @@ class Player(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.count_of_crystals = 0
         self.xvel = 0
-        self.startX = x
-        self.startY = y
-        self.image = Surface((WIDTH, HEIGHT))
-        self.image.fill(Color(COLOR))
-        self.rect = Rect(x, y, WIDTH, HEIGHT)
+        self.X = x
+        self.Y = y
+        self.image = image.load("Images/Hero.png").convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.yvel = 0  # скорость вертикального перемещения
         self.onGround = False  # На земле ли я?
 
