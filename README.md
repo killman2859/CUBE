@@ -74,4 +74,15 @@ A - Идти влево
 D - Идти вправо
 
 ## Руководство программиста
+В игре присутствуют три файла main.py, player.py, blocks.py, level.py
 
+## Заключение
+Пока нету
+
+## Список используемой литературы
+
+- yandex.lms
+- google.com
+- yander.ru
+- chatgpt.com
+- https://alice.yandex.ru/
