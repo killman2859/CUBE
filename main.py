@@ -9,7 +9,7 @@ from level import Level
 pygame.init()
 size = width, height = 500, 500
 screen = pygame.display.set_mode(size)
-FPS = 50
+FPS = 60
 clock = pygame.time.Clock()
 current_level = None
 
