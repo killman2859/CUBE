@@ -5,12 +5,13 @@ WIDTH = 22
 HEIGHT = 32
 COLOR = "#888888"
 JUMP_POWER = 10
-GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
+GRAVITY = 0.8  # Сила, которая будет тянуть нас вниз
 
 
 class Player(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
+        self.count_of_crystals = 0
         self.xvel = 0
         self.startX = x
         self.startY = y
@@ -20,7 +21,7 @@ class Player(sprite.Sprite):
         self.yvel = 0  # скорость вертикального перемещения
         self.onGround = False  # На земле ли я?
 
-    def update(self, left, right, up, platforms):
+    def update(self, left, right, up, platforms, crystals):
         if up:
             if self.onGround:  # прыгаем, только когда можем оттолкнуться от земли
                 self.yvel = -JUMP_POWER
@@ -40,15 +41,20 @@ class Player(sprite.Sprite):
         self.onGround = False
 
         self.rect.y += self.yvel
-        self.collide(0, self.yvel, platforms)
+        self.collide(0, self.yvel, platforms, crystals)
 
         self.rect.x += self.xvel  # переносим свои положение на xvel
-        self.collide(self.xvel, 0, platforms)
+        self.collide(self.xvel, 0, platforms, crystals)
 
     # def draw(self, screen):  # Выводим себя на экран
     #     screen.blit(self.image, (self.rect.x, self.rect.y))
 
-    def collide(self, xvel, yvel, platforms):
+    def collide(self, xvel, yvel, platforms, crystals):
+        for c in crystals:
+            if sprite.collide_rect(self, c):  # если есть пересечение кристалла с игроком
+                self.count_of_crystals += 1
+                crystals.remove(c)
+                c.kill()
         for p in platforms:
             if sprite.collide_rect(self, p):  # если есть пересечение платформы с игроком
 

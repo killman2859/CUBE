@@ -2,6 +2,7 @@ import random
 
 from player import Player
 from blocks import Platform
+from crystal import Crystal
 
 import pygame
 
@@ -18,6 +19,14 @@ class Level:
         self.level_data = read_level_data(level_number)
 
         self.size = self.width, self.height = 800, 600
+
+    def display_text(self, screen, value):
+        font = pygame.font.Font(None, 30)
+        text_surface = font.render(f"Количество кристаллов: {value}", True, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        text_rect.x = screen.get_width() - 280  # Правый край экрана минус ширина текста
+        text_rect.y = 10  # Верхний край экрана
+        screen.blit(text_surface, text_rect)
 
     def draw_level(self, screen):
         screen.fill((0, 0, 0))
@@ -37,11 +46,20 @@ class Level:
         hero = Player(300, 55)  # создаем героя по (x,y) координатам
         left = right = up = False
         entities = pygame.sprite.Group()  # Все объекты
-        platforms = []  # то, во что мы будем врезаться или опираться
+
+        platforms = []  # то, во что мы будем врезаться или опиратьсяa
+        crystals = []
+
         entities.add(hero)
+
         pf = Platform(100, 300)
         entities.add(pf)
         platforms.append(pf)
+
+        crystal_1 = Crystal(200, 200)
+        entities.add(crystal_1)
+        crystals.append(crystal_1)
+
         while True:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
@@ -62,7 +80,8 @@ class Level:
                     up = False
 
             self.draw_level(screen)
-            hero.update(left, right, up, platforms)
+            self.display_text(screen, hero.count_of_crystals)
+            hero.update(left, right, up, platforms, crystals)
             entities.draw(screen)  # отображение всего
             pygame.display.update()
             clock.tick(FPS)
