@@ -22,7 +22,7 @@ class Player(sprite.Sprite):
         self.yvel = 0  # скорость вертикального перемещения
         self.onGround = False  # На земле ли я?
 
-    def update(self, left, right, up, platforms, crystals):
+    def update(self, left, right, up, platforms, crystals, portals):
         if up:
             if self.onGround:  # прыгаем, только когда можем оттолкнуться от земли
                 self.yvel = -JUMP_POWER
@@ -42,15 +42,15 @@ class Player(sprite.Sprite):
         self.onGround = False
 
         self.rect.y += self.yvel
-        self.collide(0, self.yvel, platforms, crystals)
+        self.collide(0, self.yvel, platforms, crystals, portals)
 
         self.rect.x += self.xvel  # переносим свои положение на xvel
-        self.collide(self.xvel, 0, platforms, crystals)
+        self.collide(self.xvel, 0, platforms, crystals, portals)
 
     # def draw(self, screen):  # Выводим себя на экран
     #     screen.blit(self.image, (self.rect.x, self.rect.y))
 
-    def collide(self, xvel, yvel, platforms, crystals):
+    def collide(self, xvel, yvel, platforms, crystals, portals):
         for c in crystals:
             if sprite.collide_rect(self, c):  # если есть пересечение кристалла с игроком
                 self.count_of_crystals += 1
@@ -73,3 +73,7 @@ class Player(sprite.Sprite):
                 if yvel < 0:  # если движется вверх
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     self.yvel = 0  # и энергия прыжка пропадает
+
+        for portal in portals:
+            if sprite.collide_rect(self, portal):
+                portal.teleport(self)
