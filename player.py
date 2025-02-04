@@ -8,6 +8,8 @@ JUMP_POWER = 10
 GRAVITY = 0.8  # Сила, которая будет тянуть нас вниз
 
 
+import time
+
 class Player(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
@@ -21,8 +23,9 @@ class Player(sprite.Sprite):
         self.rect.y = y
         self.yvel = 0  # скорость вертикального перемещения
         self.onGround = False  # На земле ли я?
+        self.last_teleport_time = 0  # Время последней телепортации (чтобы не застревать)
 
-    def update(self, left, right, up, platforms, crystals, portals):
+    def update(self, left, right, up, platforms, crystals, portals, spikes, screen):
         if up:
             if self.onGround:  # прыгаем, только когда можем оттолкнуться от земли
                 self.yvel = -JUMP_POWER
@@ -41,39 +44,62 @@ class Player(sprite.Sprite):
 
         self.onGround = False
 
+        # Обработка вертикальных столкновений
         self.rect.y += self.yvel
-        self.collide(0, self.yvel, platforms, crystals, portals)
+        self.collide(0, self.yvel, platforms, crystals, portals, spikes, screen)
 
-        self.rect.x += self.xvel  # переносим свои положение на xvel
-        self.collide(self.xvel, 0, platforms, crystals, portals)
+        # Обработка горизонтальных столкновений
+        self.rect.x += self.xvel
+        self.collide(self.xvel, 0, platforms, crystals, portals, spikes, screen)
 
-    # def draw(self, screen):  # Выводим себя на экран
-    #     screen.blit(self.image, (self.rect.x, self.rect.y))
-
-    def collide(self, xvel, yvel, platforms, crystals, portals):
-        for c in crystals:
-            if sprite.collide_rect(self, c):  # если есть пересечение кристалла с игроком
-                self.count_of_crystals += 1
-                crystals.remove(c)
-                c.kill()
+    def collide(self, xvel, yvel, platforms, crystals, portals, spikes, screen):
         for p in platforms:
-            if sprite.collide_rect(self, p):  # если есть пересечение платформы с игроком
+            if sprite.collide_rect(self, p):  # Проверяем столкновение с платформой
+                if xvel > 0:  # Если движется вправо
+                    self.rect.right = p.rect.left
+                if xvel < 0:  # Если движется влево
+                    self.rect.left = p.rect.right
+                if yvel > 0:  # Если падает вниз
+                    self.rect.bottom = p.rect.top
+                    self.onGround = True
+                    self.yvel = 0  # Обнуляем вертикальную скорость при столкновении с платформой
+                if yvel < 0:  # Если движется вверх (прыгает)
+                    self.rect.top = p.rect.bottom
+                    self.yvel = 0
 
-                if xvel > 0:  # если движется вправо
-                    self.rect.right = p.rect.left  # то не движется вправо
-
-                if xvel < 0:  # если движется влево
-                    self.rect.left = p.rect.right  # то не движется влево
-
-                if yvel > 0:  # если падает вниз
-                    self.rect.bottom = p.rect.top  # то не падает вниз
-                    self.onGround = True  # и становится на что-то твердое
-                    self.yvel = 0  # и энергия падения пропадает
-
-                if yvel < 0:  # если движется вверх
-                    self.rect.top = p.rect.bottom  # то не движется вверх
-                    self.yvel = 0  # и энергия прыжка пропадает
+        for s in spikes:
+            if sprite.collide_rect(self, s):
+                print("💀 Игрок погиб!")
+                self.respawn(screen)  # Передаём экран для отображения надписи
 
         for portal in portals:
             if sprite.collide_rect(self, portal):
                 portal.teleport(self)
+
+
+    def respawn(self, screen):
+        """Респавн игрока после смерти"""
+        print("🔄 Перезапуск уровня...")
+
+        # Отображаем экран поражения
+        font = pygame.font.Font(None, 100)
+        text_surface = font.render("ПОРАЖЕНИЕ", True, (255, 0, 0))
+        text_rect = text_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+
+        screen.fill((0, 0, 0))  # Чёрный фон
+        screen.blit(text_surface, text_rect)
+        pygame.display.update()
+
+        pygame.time.delay(2000)  # Ждём 2 секунды перед рестартом
+
+        # Возвращаем игрока в начальную позицию
+        self.rect.x = 100
+        self.rect.y = 100
+        self.xvel = 0
+        self.yvel = 0
+
+    def collide(self, xvel, yvel, platforms, crystals, portals, spikes, screen):
+        for s in spikes:
+            if sprite.collide_rect(self, s):
+                print("💀 Игрок погиб!")
+                self.respawn(screen)  # Передаём экран для отображения надписи

@@ -6,6 +6,7 @@ from player import Player
 from blocks import Platform
 from crystal import Crystal
 from portal import Portal
+from spike import Spike
 
 import pygame
 
@@ -25,37 +26,50 @@ def load_image(name, colorkey=None):
 
 def read_level_data(level_number):
     fullname = os.path.join('Levels', "level_" + str(level_number) + ".txt")
-    # если файл не существует, то выходим
+
     if not os.path.isfile(fullname):
         print(f"Файл '{fullname}' не найден")
         sys.exit()
+
     level_file = open(fullname, 'r')
-    level_data = list()
-    portals = dict()
+    level_data = []
+    portals = {}
     pos_x = 0
     pos_y = 0
+
     lines = level_file.readlines()
     for lin in lines:
         line = lin.rstrip()
         row = []
         for char in line:
-            if char == 'p':
-                row.append(Platform(pos_x, pos_y))
-            elif char == 'c':
+            if char == 'p':  # Платформа
+                platform = Platform(pos_x, pos_y)
+                row.append(platform)
+                print(f"✅ Платформа добавлена: ({pos_x}, {pos_y})")  # Отладка
+
+            elif char == 'c':  # Кристалл
                 row.append(Crystal(pos_x, pos_y))
-            elif char != '-':
-                portal = Portal(pos_x, pos_y)
-                if char in portals.keys():
-                    portals[char].target_portal = portal
-                    portal.target_portal = portals[char]
+
+            elif char == 's':  # Шипы (если есть)
+                row.append(Spike(pos_x, pos_y + 50))  # Смещаем вниз
+
+            elif char.isalpha():  # Порталы
+                if char in portals:
+                    target = portals[char]
+                    portal = Portal(pos_x, pos_y, target_portal=target)
+                    target.target_portal = portal
                     row.append(portal)
                 else:
+                    portal = Portal(pos_x, pos_y)
                     portals[char] = portal
                     row.append(portal)
-            pos_x += 70
-        pos_y += 70
+
+            pos_x += 70  # Смещаемся вправо по карте
+
+        pos_y += 70  # Смещаемся вниз по карте
         pos_x = 0
         level_data.append(row)
+
     return level_data
 
 
@@ -85,9 +99,10 @@ class Level:
         left = right = up = False
         entities = pygame.sprite.Group()  # Все объекты
 
-        platforms = []  # то, во что мы будем врезаться или опиратьсяa
+        platforms = []
         crystals = []
         portals = []
+        spikes = []
 
         for row_data in self.level_data:
             for obj in row_data:
@@ -131,16 +146,15 @@ class Level:
                     right = False
                 if e.type == pygame.KEYUP and e.key == pygame.K_LEFT:
                     left = False
-
                 if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
                     up = True
-
                 if e.type == pygame.KEYUP and e.key == pygame.K_UP:
                     up = False
 
             self.draw_level(screen)
             self.display_text(screen, hero.count_of_crystals)
-            hero.update(left, right, up, platforms, crystals, portals)
-            entities.draw(screen)  # отображение всего
+            hero.update(left, right, up, platforms, crystals, portals, spikes, screen)  # 🔥 Добавляем screen
+            entities.draw(screen)
             pygame.display.update()
             clock.tick(FPS)
+
