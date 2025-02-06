@@ -1,5 +1,6 @@
 from pygame import *
 
+
 class Portal(sprite.Sprite):
     def __init__(self, x, y, target_portal=None):
         sprite.Sprite.__init__(self)
@@ -15,7 +16,8 @@ class Portal(sprite.Sprite):
             print(f"⚠️ Ошибка: целевой портал не задан! ({self.rect.x}, {self.rect.y})")
             return
 
-        print(f"✅ Телепорт из ({player.rect.x}, {player.rect.y}) в ({self.target_portal.rect.x}, {self.target_portal.rect.y})")
+        print(
+            f"✅ Телепорт из ({player.rect.x}, {player.rect.y}) в ({self.target_portal.rect.x}, {self.target_portal.rect.y})")
 
         new_x = self.target_portal.rect.x + 55  # Сдвигаем вправо
         if new_x > 700:  # Если выходит за границы экрана
@@ -23,3 +25,57 @@ class Portal(sprite.Sprite):
 
         player.rect.x = new_x
         player.rect.y = self.target_portal.rect.y
+
+
+if __name__ == "__main__":
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
+    print("Starting")
