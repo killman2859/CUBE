@@ -1,3 +1,4 @@
+import pygame
 from pygame import *
 
 MOVE_SPEED = 7
@@ -7,18 +8,32 @@ COLOR = "#888888"
 JUMP_POWER = 10
 GRAVITY = 0.8  # Сила, которая будет тянуть нас вниз
 
-
 import time
 
+
 class Player(sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, level):
         sprite.Sprite.__init__(self)
         self.count_of_crystals = 0
+        self.curr_level = level
         self.xvel = 0
         self.X = x
         self.Y = y
-        self.image = image.load("Images/Hero.png").convert_alpha()
-        self.rect = self.image.get_rect()
+        self.images = list()
+        self.cur_sprite = 0
+        image_1 = image.load("Images/Hero/Hero_1.png").convert_alpha()
+        image_2 = image.load("Images/Hero/Hero_2.png").convert_alpha()
+        image_3 = image.load("Images/Hero/Hero_3.png").convert_alpha()
+        image_4 = image.load("Images/Hero/Hero_4.png").convert_alpha()
+        image_5 = image.load("Images/Hero/Hero_5.png").convert_alpha()
+        self.images.append(image_1)
+        self.images.append(image_2)
+        self.images.append(image_3)
+        self.images.append(image_4)
+        self.images.append(image_5)
+
+        self.image = self.images[0]  # начальное изображение
+        self.rect = self.images[0].get_rect()
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0  # скорость вертикального перемещения
@@ -26,6 +41,10 @@ class Player(sprite.Sprite):
         self.last_teleport_time = 0  # Время последней телепортации (чтобы не застревать)
 
     def update(self, left, right, up, platforms, crystals, portals, spikes, screen):
+
+        self.cur_sprite = (self.cur_sprite + 1) % len(self.images)
+        self.image = self.images[self.cur_sprite]
+
         if up:
             if self.onGround:  # прыгаем, только когда можем оттолкнуться от земли
                 self.yvel = -JUMP_POWER
@@ -76,6 +95,17 @@ class Player(sprite.Sprite):
             if sprite.collide_rect(self, portal):
                 portal.teleport(self)
 
+        for crystal in crystals:
+            if sprite.collide_rect(self, crystal):
+                self.count_of_crystals += 1
+                crystals.remove(crystal)
+                crystal.kill()  # Удаляем кристалл из списка
+                print(f"��� Количество кристаллов: {self.count_of_crystals}")
+                return
+
+        if self.rect.y > 700:
+            print("💀 Игрок погиб!")
+            self.respawn(screen)  # Передаём экран для отображения надписи
 
     def respawn(self, screen):
         """Респавн игрока после смерти"""
@@ -92,14 +122,6 @@ class Player(sprite.Sprite):
 
         pygame.time.delay(2000)  # Ждём 2 секунды перед рестартом
 
-        # Возвращаем игрока в начальную позицию
-        self.rect.x = 100
-        self.rect.y = 100
-        self.xvel = 0
-        self.yvel = 0
-
-    def collide(self, xvel, yvel, platforms, crystals, portals, spikes, screen):
-        for s in spikes:
-            if sprite.collide_rect(self, s):
-                print("💀 Игрок погиб!")
-                self.respawn(screen)  # Передаём экран для отображения надписи
+        new_level = self.curr_level
+        new_level.start_level()
+        self.kill()
