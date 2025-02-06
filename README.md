@@ -81,6 +81,7 @@ CUBE
 3. Энергетические дыры
 
    ![alt text](ImagesFormMarkDown/level.png)
+   ![alt text](ImagesFormMarkDown/levelportals.png)
 
 Управление игрой:
 Стрелка вверх - Прыжок 
