@@ -161,6 +161,10 @@ class Level:
                     up = True
                 if e.type == pygame.KEYUP and e.key == pygame.K_UP:
                     up = False
+                if e.type == pygame.KEYDOWN and e.key == pygame.K_r:
+                    new_level = self
+                    new_level.start_level()
+                    hero.kill()
 
             if self.count_of_crystals == hero.count_of_crystals:
                 if self.level_number + 1 < self.final_level_num + 1:
